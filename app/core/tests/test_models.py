@@ -1,4 +1,5 @@
 """ Test for models """
+from unittest.mock import patch
 from django.test import TestCase
 from django.contrib.auth import get_user_model # helper function to get default user model for the project,and you can referance to the model directly from the models we are difined
 from decimal import Decimal
@@ -66,6 +67,23 @@ class ModelTest(TestCase):
     def test_create_tag(self):
         """Test creating a Tag"""
         user=create_user()
-        tag=models.Tag.objects.create(user=user,name='Tag1')
+        tag=models.Tag.objects.create(user=user, name='Tag1')
 
         self.assertEqual(str(tag),tag.name)
+
+    def test_create_ingredient(self):
+        """Test create ingredient"""
+        user=create_user()
+        Ingredient=models.Ingredient.objects.create(user=user, name='Ingredient')
+
+        self.assertEqual(str(Ingredient), Ingredient.name)
+
+    @patch('core.models.uuid.uuid4')
+    def test_recipe_file_name_uuid(self, mock_uuid):
+        """Test generate image path"""
+        uuid = 'test-uuid'
+        mock_uuid.return_value = uuid
+        file_path = models.recipe_image_file_path(None, 'example.jpg')
+
+        self.assertEqual(file_path, f'uploads/recipe/{uuid}.jpg')
+
